@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="admin-profile">
+                <div class="admin-avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div class="admin-info">
+                    <h2>Admin Panel</h2>
+                    <p>Welcome back</p>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                    Dashboard
+                </a>
+                <a href="user.html">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Users
+                </a>
+                <a href="docment.html">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                    Documents
+                </a>
+                
+            </nav>
+            <button class="logout-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                Logout
+            </button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1>Dashboard Overview</h1>
+                <div class="header-actions">
+                    <button class="refresh-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+                        Refresh Data
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Credit Request Statistics -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Credit Request Statistics</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12H9"/></svg>
+                    </div>
+                    <div class="card-content" id="requestStats">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+
+                <!-- Most Scanned Document -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Most Scanned Document</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                    </div>
+                    <div class="card-content" id="mostScannedDoc">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+
+                <!-- Highest Credits Used -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Highest Credits Used</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                    </div>
+                    <div class="card-content" id="highestCredits">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+                <!-- Approve Requests -->
+                <div class="dashboard-card1 recent-scans">
+                    <div class="card-header">
+                        <h3>Approve Requests</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M12 4h9"/><path d="M5 9l3 3-3 3"/><path d="M9 12H2"/></svg>
+                    </div>
+                    <div class="card-content" id="approveRequests">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Number of Users</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="userChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check for admin token
+        const adminToken = localStorage.getItem('adminToken');
+        if (!adminToken) {
+            window.location.href = 'index.html';
+        }
+
+        // Fetch data from endpoints
+        async function fetchDashboardData() {
+            const headers = {
+                'Authorization': `Bearer ${adminToken}`,
+                'Content-Type': 'application/json'
+            };
+
+            try {
+                // Fetch request statistics
+                const requestStatsResponse = await fetch('http://localhost:3001/admin/request-stats', { headers });
+                const requestStatsData = await requestStatsResponse.json();
+                
+                if (requestStatsData.error) throw new Error(requestStatsData.error);
+                
+                const requestStatsHtml = `
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Users</span>
+                            <span class="stat-value">${requestStatsData.totalUsers || 0}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Active Users</span>
+                            <span class="stat-value">${requestStatsData.activeUsers || 0}</span>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('requestStats').innerHTML = requestStatsHtml;
+
+                // Fetch most scanned document
+                const docResponse = await fetch('http://localhost:3001/admin/most-scanned-document', { headers });
+                const docData = await docResponse.json();
+                
+                if (docData.error) throw new Error(docData.error);
+                
+                const docHtml = `
+                    <div class="document-stat">
+                        <p class="key-points">Key Points: ${docData.mostScannedDocument.keyPoints.replace(/\n/g, '<br>')}</p>
+                        <p class="scan-count">Scanned ${docData.mostScannedDocument.scan_count} times</p>
+                    </div>
+                `;
+                document.getElementById('mostScannedDoc').innerHTML = docHtml;
+
+                // Fetch highest credits used
+                const creditsResponse = await fetch('http://localhost:3001/admin/highest-credits-used-users', { headers });
+                const creditsData = await creditsResponse.json();
+
+                if (creditsData.error) throw new Error(creditsData.error);
+
+                const creditsHtml = creditsData.users.map(user => `
+                    <div class="credits-stat">
+                        <p class="username">${user.username}</p>
+                        <p class="credits-count">${user.total_credits_used} credits used</p>
+                    </div>
+                `).join('');
+
+                document.getElementById('highestCredits').innerHTML = creditsHtml;
+
+                // Fetch credit reset requests
+                const requestsResponse = await fetch('http://localhost:3001/admin/credit-reset-requests', { headers });
+                const requestsData = await requestsResponse.json();
+
+                if (requestsData.error) throw new Error(requestsData.error);
+
+                const requestsHtml = requestsData.requests.map(request => `
+                    <div class="request-item">
+                        <p>User ID: ${request.user_id}</p>
+                        <p>Request Date: ${new Date(request.created_at).toLocaleString()}</p>
+                        <button class="approve-btn" data-user-id="${request.user_id}">Approve</button>
+                         <button class="decline-btn" data-user-id="${request.user_id}">Decline</button>
+                    </div>
+                `).join('');
+
+                document.getElementById('approveRequests').innerHTML = requestsHtml || '<p>No requests found.</p>';
+
+                // Fetch number of users
+                const usersResponse = await fetch('http://localhost:3001/admin/users-per-day', { headers });
+                const usersData = await usersResponse.json();
+
+                if (usersData.error) throw new Error(usersData.error);
+
+                const userCounts = usersData.usersPerDay.reduce((acc, user) => {
+                    if (user.count !== null && user.date !== null) {
+                        acc[user.date] = user.count;
+                    }
+                    return acc;
+                }, {});
+
+                const userChartCtx = document.getElementById('userChart').getContext('2d');
+                new Chart(userChartCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(userCounts),
+                        datasets: [{
+                            label: 'Number of Users Per Day',
+                            data: Object.values(userCounts),
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                const errorHtml = `
+                    <div class="error-message">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                        <p>Error loading data. Please try again.</p>
+                    </div>
+                `;
+                document.querySelectorAll('.card-content').forEach(card => {
+                    // card.innerHTML = errorHtml;
+                });
+            }
+        }
+
+        // Initial data fetch
+        fetchDashboardData();
+
+        // Refresh button handler
+        document.querySelector('.refresh-btn').addEventListener('click', fetchDashboardData);
+
+        // Logout handler
+        document.querySelector('.logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'index.html';
+        });
+
+        async function approveCreditReset(userId) {
+            const headers = {
+                'Authorization': `Bearer ${adminToken}`,
+                'Content-Type': 'application/json'
+            };
+
+            try {
+                const response = await fetch('http://localhost:3001/admin/approve-credits-reset', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ userId })
+                });
+
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                alert('Credit reset approved successfully');
+                fetchDashboardData(); // Refresh the data
+            } catch (error) {
+                console.error('Error approving credit reset:', error);
+                alert('Error approving credit reset. Please try again.');
+            }
+        }
+
+        async function declineCreditReset(userId) {
+            const headers = {
+                'Authorization': `Bearer ${adminToken}`,
+                'Content-Type': 'application/json'
+            };
+
+            try {
+                const response = await fetch('http://localhost:3001/admin/decline-credits-reset', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ userId })
+                });
+
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                alert('Credit reset request declined successfully');
+                fetchDashboardData(); // Refresh the data
+            } catch (error) {
+                console.error('Error declining credit reset:', error);
+                alert('Error declining credit reset. Please try again.');
+            }
+        }
+
+        // Event delegation for approve and decline buttons
+        document.getElementById('approveRequests').addEventListener('click', (event) => {
+            if (event.target.classList.contains('approve-btn')) {
+                const userId = event.target.getAttribute('data-user-id');
+                approveCreditReset(userId);
+            } else if (event.target.classList.contains('decline-btn')) {
+                const userId = event.target.getAttribute('data-user-id');
+                declineCreditReset(userId);
+            }
+        });
+        document.querySelector('.logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('adminToken');
+            window.location.replace('adminsignin.html'); // Ensures redirection without back navigation
+        });
+    </script>
+</body>
+</html>

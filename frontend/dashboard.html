@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Analysis Dashboard</title>
+    <link rel="stylesheet" href="/src/styles1.css">
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script> <!-- CDN for jwt-decode -->
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://api.iconify.design/lucide:scan.svg" alt="Logo" class="logo">
+                <h1>DocScan</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <img src="https://api.iconify.design/lucide:layout-dashboard.svg" alt="Dashboard">
+                    Dashboard
+                </a>
+                
+                
+                <button class="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                    Logout
+                </button>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-bar">
+                    <img src="https://api.iconify.design/lucide:search.svg" alt="Search">
+                    <input type="text" placeholder="Search documents..." id="searchInput">
+                </div>
+                <div class="user-menu">
+                    
+                    <div class="user-profile">
+                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop&crop=faces" alt="User" class="avatar">
+                    <span id="usernameDisplay"></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <div class="card stats-card">
+                    <h3>Documents Scanned</h3>
+                    
+                    <div class="stat-value" id="documentCount">Loading...</div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const token = localStorage.getItem('token');
+                            const decodedToken = jwt_decode(token);
+                            const userId = decodedToken.id;
+
+                            fetch(`http://localhost:3001/user/documents?userId=${userId}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.documents) {
+                                        document.getElementById('documentCount').textContent = data.documents.length;
+                                    } else {
+                                        document.getElementById('documentCount').textContent = '0';
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error('Error fetching document count:', err);
+                                    document.getElementById('documentCount').textContent = 'Error';
+                                });
+                        });
+                    </script>
+                    <div class="stat-chart"></div>
+                </div>
+                <div class="card stats-card">
+                    <h3>Available Credits</h3>
+                    <div class="stat-value" id="creditsCount">Loading...</div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const token = localStorage.getItem('token');
+                            
+                            // Check if token exists in localStorage
+                            if (!token) {
+                                console.error('No token found');
+                                document.getElementById('creditsCount').textContent = 'Error: No token found';
+                                return;
+                            }
+                    
+                            // Decode the token to get userId (assuming jwt_decode is already included)
+                            const decodedToken = jwt_decode(token);
+                            const userId = decodedToken.id;
+                    
+                            // Send request to the server to fetch credits
+                            fetch('http://localhost:3001/user/credits', {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`  // Send token as Authorization header
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.credits !== undefined) {
+                                    document.getElementById('creditsCount').textContent = data.credits;
+                                } else if (data.error) {
+                                    document.getElementById('creditsCount').textContent = 'Error: ' + data.error;
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Error fetching credits:', err);
+                                document.getElementById('creditsCount').textContent = 'Error';
+                            });
+                        });
+                    </script>
+                    
+                    <div class="stat-chart"></div>
+                </div>
+                <div class="card upload-card">
+                    <h3>Upload Document</h3>
+                    <div class="upload-area" id="dropZone">
+                        <img src="https://api.iconify.design/lucide:upload-cloud.svg" alt="Upload" class="upload-icon">
+                        <p>Drag & drop files here or</p>
+                        <label for="fileInput" class="upload-button">Browse Files</label>
+                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" multiple hidden>
+                    </div>
+                    <div class="upload-list" id="uploadList">
+                        <!-- Upload items will be added here dynamically -->
+                    </div>
+                </div>
+
+                <div class="card recent-scans">
+                    <div class="card-header">
+                        <h3>Recent Scans</h3>
+                        <button class="view-all" id="viewAllBtn">View All</button>
+                        <button class="show-less" id="showLessBtn" style="display: none;">Show Less</button>
+                    </div>
+                    <div class="scan-list" id="recentScans">
+                        <!-- Recent scans will be dynamically added here -->
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const token = localStorage.getItem('token');
+                            const decodedToken = jwt_decode(token);
+                            const userId = decodedToken.id;
+                
+                            fetch(`http://localhost:3001/user/documents?userId=${userId}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    const recentScansContainer = document.getElementById('recentScans');
+                                    const viewAllButton = document.getElementById('viewAllBtn');
+                                    const showLessButton = document.getElementById('showLessBtn');
+                                    const searchInput = document.getElementById('searchInput');
+
+                                    let documents = data.documents || [];
+
+                                    function displayDocuments(docs) {
+                                        recentScansContainer.innerHTML = '';
+                                        docs.forEach(doc => {
+                                            const scanItem = document.createElement('div');
+                                            scanItem.classList.add('scan-item');
+                                            scanItem.innerHTML = `
+                                                <div class="scan-icon">
+                                                    <img src="https://api.iconify.design/lucide:file-text.svg" alt="Document">
+                                                </div>
+                                                <div class="scan-details">
+                                                    <h4>${doc.filename}</h4>
+                                                    <p id="similarity-${doc.id}">Similarity data not available</p>
+                                                    <button class="check-now" data-doc-id="${doc.id}">Check Now</button>
+                                                </div>
+                                            `;
+                                            recentScansContainer.appendChild(scanItem);
+                                        });
+                                    }
+
+                                    displayDocuments(documents.slice(0, 3));
+
+                                    searchInput.addEventListener('input', (event) => {
+                                        const query = event.target.value.toLowerCase();
+                                        const filteredDocs = documents.filter(doc => doc.filename.toLowerCase().includes(query));
+                                        displayDocuments(filteredDocs);
+                                    });
+
+                                    viewAllButton.addEventListener('click', () => {
+                                        displayDocuments(documents);
+                                        viewAllButton.style.display = 'none';
+                                        showLessButton.style.display = 'block';
+                                    });
+
+                                    showLessButton.addEventListener('click', () => {
+                                        displayDocuments(documents.slice(0, 3));
+                                        showLessButton.style.display = 'none';
+                                        viewAllButton.style.display = 'block';
+                                    });
+
+                                    recentScansContainer.addEventListener('click', (event) => {
+                                        if (event.target.classList.contains('check-now')) {
+                                            const docId = event.target.getAttribute('data-doc-id');
+                                            fetch(`http://localhost:3001/matches/${docId}`)
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    const similarityElement = document.getElementById(`similarity-${docId}`);
+                                                    if (data.matches && data.matches.length > 0) {
+                                                        const topMatch = data.matches[0];
+                                                        similarityElement.textContent = `Top match: ${topMatch.similarity}% with ${topMatch.filename}`;
+                                                    } else {
+                                                        similarityElement.textContent = 'No similar documents found';
+                                                    }
+                                                })
+                                                .catch(err => {
+                                                    console.error('Error fetching document matches:', err);
+                                                    document.getElementById(`similarity-${docId}`).textContent = 'Error fetching matches';
+                                                });
+                                        }
+                                    });
+                                })
+                                .catch(err => {
+                                    console.error('Error fetching recent scans:', err);
+                                    document.getElementById('recentScans').innerHTML = '<p>Error loading recent scans.</p>';
+                                });
+                        });
+                    </script>
+                </div>
+                
+                
+                <div class="card upload-card">
+                    <h3>Request Credits Reset</h3>
+                    <div class="credits-area">
+                        <img src="https://api.iconify.design/lucide:refresh-cw.svg" alt="Reset" class="credits-icon">
+                        <p>Need more credits? Request a reset from admin</p>
+                        <button class="credits-button" id="requestCreditsBtn">Request Credits Reset</button>
+                    </div>
+                    <div id="statusMessage" class="status-message"></div>
+                </div>
+                
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const uploadList = document.getElementById('uploadList');
+
+        // Handle file selection via the file input or drag-and-drop
+        fileInput.addEventListener('change', handleFileSelect);
+        dropZone.addEventListener('dragover', (e) => e.preventDefault());
+        dropZone.addEventListener('drop', handleFileDrop);
+        // Get the token from local storage
+           
+        const token = localStorage.getItem('token');
+            // Decode the token
+            const decodedToken = jwt_decode(token);
+
+            // Extract the userId from the decoded token
+            const username = decodedToken.username;
+ 
+            document.getElementById('usernameDisplay').textContent = username;
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            uploadFiles(files);
+        }
+
+        // Function to handle file drop
+        function handleFileDrop(event) {
+            event.preventDefault();
+            const files = event.dataTransfer.files;
+            uploadFiles(files);
+        }
+
+        // Function to upload files
+        function uploadFiles(files) {
+            const formData = new FormData();
+            
+            const token = localStorage.getItem('token');
+            // Decode the token
+            const decodedToken = jwt_decode(token);
+
+            // Extract the userId from the decoded token
+            const userId = decodedToken.id;
+            Array.from(files).forEach(file => {
+                formData.append('file', file);
+            });
+            formData.append('userId', userId);  // Attach userId from localStorage
+
+            fetch('http://localhost:3001/scanUpload', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    // Display success message and add to the upload list
+                    const listItem = document.createElement('div');
+                    listItem.classList.add('upload-item');
+                    listItem.innerHTML = `<p>${files[0].name} uploaded successfully!</p>`;
+                    uploadList.appendChild(listItem);
+                } else if (data.error) {
+                    // Show error message
+                    alert(data.error);
+                }
+            })
+            .catch(err => {
+                console.error('Error during file upload:', err);
+                alert('An error occurred while uploading the file.');
+            });
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const requestBtn = document.getElementById('requestCreditsBtn');
+            const statusMessage = document.getElementById('statusMessage');
+
+            requestBtn.addEventListener('click', () => {
+                fetch('http://localhost:3001/user/request-credits-reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        statusMessage.textContent = data.error;
+                        statusMessage.className = 'status-message error';
+                    } else {
+                        statusMessage.textContent = data.message;
+                        statusMessage.className = 'status-message success';
+                        requestBtn.disabled = true;
+                        requestBtn.textContent = 'Request Sent';
+                    }
+                })
+                .catch(error => {
+                    statusMessage.textContent = 'An error occurred while sending the request';
+                    statusMessage.className = 'status-message error';
+                    console.error('Error requesting credits reset:', error);
+                });
+            });
+        });
+
+        // Logout handler
+        document.querySelector('.logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.replace('index.html'); // Ensures redirection without back navigation
+        });
+    </script>
+</body>
+</html>
