@@ -15,7 +15,7 @@ const jwt = require('jsonwebtoken');
 // Setup database
 const dbPath = path.join(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath);
-const genAI = new GoogleGenerativeAI("AIzaSyAiYHG9TYtTNzeca_3zOpQYurKLinlSwmE");
+const genAI = new GoogleGenerativeAI('AIzaSyAiYHG9TYtTNzeca_3zOpQYurKLinlSwmE');
 app.use(express.json());
 const cors = require('cors');
 require('dotenv').config();
@@ -159,7 +159,7 @@ checkAndResetCredits();
 app.post('/auth/admin/register', async (req, res) => {
     const { username, password, secretKey } = req.body;
 
-    if (secretKey !== '1307') {
+    if (secretKey !== process.env.ADMIN_SECRET_KEY) {
         return res.status(403).json({ error: "Invalid secret key" });
     }
 
