@@ -359,6 +359,13 @@ body {
     cursor: pointer;
 }
 
+.show-less {
+    color: #4a90e2;
+    background: none;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
 .scan-list {
     display: flex;
     flex-direction: column;
@@ -432,7 +439,20 @@ body {
     border-color: #4a90e2;
     color: white;
 }
+.check-now {
+    background: #4a90e2;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
 
+.check-now:hover {
+    background: #2a5298;
+}
 .matrix-content {
     margin-top: 1.5rem;
     height: 300px;

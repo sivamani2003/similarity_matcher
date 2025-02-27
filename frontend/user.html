@@ -145,60 +145,56 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('editCreditsModal');
-            const closeBtn = document.querySelector('.modal-close');
-            const editForm = document.getElementById('editCreditsForm');
+   <!-- Keep the HTML structure the same, only updating the script section -->
 
-            // Close modal when clicking the close button
-            closeBtn.onclick = () => {
+<script>
+    function decodeToken(token) {
+        try {
+            const [encodedPayload] = token.split('.');
+            const payload = JSON.parse(atob(encodedPayload));
+            return payload;
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            return null;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('editCreditsModal');
+        const closeBtn = document.querySelector('.modal-close');
+        const editForm = document.getElementById('editCreditsForm');
+        const adminToken = localStorage.getItem('adminToken');
+
+        // Verify token exists
+        if (!adminToken) {
+            window.location.replace('adminsignin.html');
+            return;
+        }
+
+        // Close modal handlers
+        closeBtn.onclick = () => {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = (event) => {
+            if (event.target === modal) {
                 modal.style.display = 'none';
             }
+        }
 
-            // Close modal when clicking outside
-            window.onclick = (event) => {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            }
+        // Handle edit credits form submission
+        editForm.onsubmit = (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('editUserId').value;
+            const newCredits = document.getElementById('newCredits').value;
 
-            // Handle edit credits form submission
-            editForm.onsubmit = (e) => {
-                e.preventDefault();
-                const userId = document.getElementById('editUserId').value;
-                const newCredits = document.getElementById('newCredits').value;
-
-                fetch('http://localhost:3001/user/change-credits', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
-                    },
-                    body: JSON.stringify({ userId, newCredits: parseInt(newCredits) })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error(data.error);
-                        return;
-                    }
-                    // Update the credits display in the user card
-                    const userCard = document.querySelector(`[data-user-id="${userId}"]`);
-                    const creditsDisplay = userCard.querySelector('.stat-value');
-                    creditsDisplay.textContent = newCredits;
-                    modal.style.display = 'none';
-                })
-                .catch(error => console.error('Error updating credits:', error));
-            };
-
-            // Fetch and display users
-            fetch('http://localhost:3001/admin/users', {
+            fetch('http://localhost:3001/user/change-credits', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
-                }
+                    'Authorization': 'Bearer ' + adminToken
+                },
+                body: JSON.stringify({ userId, credits: parseInt(newCredits) })
             })
             .then(response => response.json())
             .then(data => {
@@ -206,82 +202,106 @@
                     console.error(data.error);
                     return;
                 }
-
-                const usersGrid = document.querySelector('.users-grid');
-                data.users.forEach(user => {
-                    const userCard = document.createElement('div');
-                    userCard.classList.add('user-card');
-                    userCard.dataset.userId = user.id;
-                    userCard.innerHTML = `
-                        <div class="user-card-header">
-                            <div class="user-avatar">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                            </div>
-                            <div class="user-status active">Active</div>
-                        </div>
-                        <div class="user-info">
-                            <h3>${user.username}</h3>
-                            <div class="user-stats">
-                                <div class="stat-item">
-                                    <span class="stat-label">Credits</span>
-                                    <span class="stat-value">${user.credits}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="user-actions">
-                            <button class="action-btn edit">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                                Edit
-                            </button>
-                            <button class="action-btn delete">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                                Delete
-                            </button>
-                        </div>
-                    `;
-                    usersGrid.appendChild(userCard);
-
-                    // Add edit button click handler
-                    const editBtn = userCard.querySelector('.action-btn.edit');
-                    editBtn.addEventListener('click', () => {
-                        document.getElementById('editUserId').value = user.id;
-                        document.getElementById('newCredits').value = user.credits;
-                        modal.style.display = 'block';
-                    });
-                });
-
-                // Add delete button handlers
-                document.querySelectorAll('.action-btn.delete').forEach(button => {
-                    button.addEventListener('click', (event) => {
-                        const userId = event.target.closest('.user-card').dataset.userId;
-                        fetch('http://localhost:3001/admin/delete-user', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
-                            },
-                            body: JSON.stringify({ userId })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.error) {
-                                console.error(data.error);
-                                return;
-                            }
-                            event.target.closest('.user-card').remove();
-                            console.log(data.message);
-                        })
-                        .catch(error => console.error('Error deleting user:', error));
-                    });
-                });
+                const userCard = document.querySelector(`[data-user-id="${userId}"]`);
+                const creditsDisplay = userCard.querySelector('.stat-value');
+                creditsDisplay.textContent = newCredits;
+                modal.style.display = 'none';
             })
-            .catch(error => console.error('Error fetching users:', error));
-        });
+            .catch(error => console.error('Error updating credits:', error));
+        };
 
-        document.querySelector('.logout-btn').addEventListener('click', () => {
-            localStorage.removeItem('adminToken');
-            window.location.replace('adminsignin.html'); // Ensures redirection without back navigation
-        });
-    </script>
+        // Fetch and display users
+        fetch('http://localhost:3001/admin/users', {
+            method: 'GET',  // Changed from POST to GET
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + adminToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                if (data.error === 'jwt expired') {
+                    localStorage.removeItem('adminToken');
+                    window.location.replace('adminsignin.html');
+                }
+                return;
+            }
+
+            const usersGrid = document.querySelector('.users-grid');
+            data.users.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.classList.add('user-card');
+                userCard.dataset.userId = user.id;
+                userCard.innerHTML = `
+                    <div class="user-card-header">
+                        <div class="user-avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div class="user-status active">Active</div>
+                    </div>
+                    <div class="user-info">
+                        <h3>${user.username}</h3>
+                        <div class="user-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Credits</span>
+                                <span class="stat-value">${user.credits}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <button class="action-btn edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                            Edit
+                        </button>
+                        <button class="action-btn delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                            Delete
+                        </button>
+                    </div>
+                `;
+                usersGrid.appendChild(userCard);
+
+                const editBtn = userCard.querySelector('.action-btn.edit');
+                editBtn.addEventListener('click', () => {
+                    document.getElementById('editUserId').value = user.id;
+                    document.getElementById('newCredits').value = user.credits;
+                    modal.style.display = 'block';
+                });
+            });
+
+            // Add delete button handlers
+            document.querySelectorAll('.action-btn.delete').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const userId = event.target.closest('.user-card').dataset.userId;
+                    fetch(`http://localhost:3001/admin/delete-user/${userId}`, {  // Changed to DELETE with param
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + adminToken
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            console.error(data.error);
+                            return;
+                        }
+                        event.target.closest('.user-card').remove();
+                        console.log(data.message);
+                    })
+                    .catch(error => console.error('Error deleting user:', error));
+                });
+            });
+        })
+        .catch(error => console.error('Error fetching users:', error));
+    });
+
+    document.querySelector('.logout-btn').addEventListener('click', () => {
+        localStorage.removeItem('adminToken');
+        window.location.replace('adminsignin.html');
+    });
+</script>
 </body>
 </html>

@@ -64,7 +64,7 @@
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     fetch('http://localhost:3001/admin/documents', {
-                        method: 'POST',
+                        method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
@@ -83,10 +83,7 @@
                                 <div class="document-info">
                                     <h3>${doc.filename}</h3>
                                     <span class="document-type">${getFileType(doc.filename)}</span>
-                                    <div class="document-meta">
-                                        <span>Size: Unknown</span>
-                                        <span>Modified: Unknown</span>
-                                    </div>
+                                    
                                 </div>
                                 <div class="document-actions">
                                     <button class="action-btn view" data-doc-id="${doc.id}">
@@ -97,10 +94,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                         Download
                                     </button>
-                                    <button class="action-btn delete" data-doc-id="${doc.id}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                                        Delete
-                                    </button>
+                                   
                                 </div>
                             `;
                             documentsGrid.appendChild(docCard);
@@ -115,15 +109,20 @@
                                         'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
                                     }
                                 })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.error) {
-                                        alert(data.error);
-                                    } else {
-                                        alert(data.preview); // Display the preview in an alert for now
+                                .then(response => {
+                                    if (!response.ok) {
+                                        return response.json().then(data => { throw new Error(data.error); });
                                     }
+                                    return response.blob();
                                 })
-                                .catch(error => console.error('Error fetching document preview:', error));
+                                .then(blob => {
+                                    const url = URL.createObjectURL(blob);
+                                    window.open(url, '_blank');
+                                })
+                                .catch(error => {
+                                    console.error('Error viewing document:', error);
+                                    alert(error.message);
+                                });
                             });
                         });
 
@@ -132,17 +131,16 @@
                             button.addEventListener('click', function() {
                                 const docId = this.getAttribute('data-doc-id');
                                 const filename = this.getAttribute('data-filename');
-                                fetch(`http://localhost:3001/download/${docId}`, {
+                                fetch(`http://localhost:3001/download-file/${docId}`, {
                                     headers: {
                                         'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
                                     }
                                 })
                                 .then(response => {
-                                    if (response.ok) {
-                                        return response.blob();
-                                    } else {
+                                    if (!response.ok) {
                                         return response.json().then(data => { throw new Error(data.error); });
                                     }
+                                    return response.blob();
                                 })
                                 .then(blob => {
                                     const url = window.URL.createObjectURL(blob);
@@ -154,35 +152,15 @@
                                     a.click();
                                     window.URL.revokeObjectURL(url);
                                 })
-                                .catch(error => console.error('Error downloading document:', error));
+                                .catch(error => {
+                                    console.error('Error downloading document:', error);
+                                    alert(error.message);
+                                });
                             });
                         });
 
-                        // Add event listeners to delete buttons
-                        document.querySelectorAll('.action-btn.delete').forEach(button => {
-                            button.addEventListener('click', function() {
-                                const docId = this.getAttribute('data-doc-id');
-                                fetch('http://localhost:3001/admin/delete-document', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
-                                    },
-                                    body: JSON.stringify({ docId })
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.error) {
-                                        alert(data.error);
-                                    } else {
-                                        alert(data.message);
-                                        // Remove the document card from the grid
-                                        this.closest('.document-card').remove();
-                                    }
-                                })
-                                .catch(error => console.error('Error deleting document:', error));
-                            });
-                        });
+                       
+                        
                     })
                     .catch(error => console.error('Error fetching documents:', error));
                 });
@@ -190,11 +168,8 @@
                 function getFileType(filename) {
                     const ext = filename.split('.').pop().toLowerCase();
                     switch (ext) {
-                        case 'pdf': return 'PDF';
-                        case 'doc': return 'DOC';
-                        case 'docx': return 'DOCX';
-                        case 'xls': return 'XLS';
-                        case 'xlsx': return 'XLSX';
+                        case 'txt': return 'TEXT';
+                        
                         default: return 'Unknown';
                     }
                 }
@@ -202,11 +177,8 @@
                 function getFileTypeIcon(filename) {
                     const ext = filename.split('.').pop().toLowerCase();
                     switch (ext) {
-                        case 'pdf': return 'pdf';
-                        case 'doc':
-                        case 'docx': return 'doc';
-                        case 'xls':
-                        case 'xlsx': return 'xls';
+                        case 'txt': return 'TEXT';
+                       
                         default: return 'unknown';
                     }
                 }

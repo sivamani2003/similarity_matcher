@@ -1,0 +1,7 @@
+Abstract
+
+This project focuses on building a collaborative online code compiler integrated with live sharing and chatbot capabilities, leveraging Azure Cosmos DB for efficient storage and retrieval. The platform enables users to write, compile, and execute code in real-time, fostering seamless collaboration among multiple users. The live sharing feature ensures that participants can concurrently view and edit code, making it an ideal tool for pair programming, coding interviews, and collaborative learning.  
+
+The chatbot, powered by AI, serves as a coding assistant to enhance productivity. Users can request code snippets, problem-solving suggestions, or clarifications, which the chatbot fetches from a pre-trained knowledge base or generates dynamically. This feature is particularly useful for beginners or those seeking optimized solutions.  
+
+Azure Cosmos DB underpins the storage mechanism, providing scalable, globally distributed, and low-latency access to user code, session history, and shared files. Additionally, the platform includes email integration to facilitate sharing of compiled results or completed projects with team members or instructors, enhancing communication and documentation.  

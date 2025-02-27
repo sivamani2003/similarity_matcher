@@ -306,3 +306,42 @@ app.post('/admin/approve-credits-reset', verifyToken, (req, res) => {
         });
     });
 });
+app.get('/admin/most-scanned-document', verifyToken, (req, res) => {
+    if (req.userRole !== 'admin') {
+        return res.status(403).json({ error: "Access denied" });
+    }
+
+    db.get("SELECT content, COUNT(*) as scan_count FROM documents GROUP BY content ORDER BY scan_count DESC LIMIT 1", (err, doc) => {
+        if (err || !doc) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        const filePath = path.join(__dirname, doc.content);
+        const fileExtension = path.extname(filePath).toLowerCase();
+
+        if (fileExtension === '.pdf') {
+            fs.readFile(filePath, (err, data) => {
+                if (err) {
+                    return res.status(500).json({ error: "Failed to read the PDF file" });
+                }
+
+                pdf(data).then(function (pdfData) {
+                    const summary = pdfData.text.slice(0, 1000); // Extract first 1000 characters as summary
+                    res.json({ mostScannedDocument: { summary, scan_count: doc.scan_count } });
+                }).catch((err) => {
+                    res.status(500).json({ error: "Error extracting text from PDF" });
+                });
+            });
+        } else if (fileExtension === '.txt') {
+            fs.readFile(filePath, 'utf-8', (err, data) => {
+                if (err) {
+                    return res.status(500).json({ error: "Failed to read the text file" });
+                }
+                const summary = data.slice(0, 1000); // Extract first 1000 characters as summary
+                res.json({ mostScannedDocument: { summary, scan_count: doc.scan_count } });
+            });
+        } else {
+            res.status(400).json({ error: "Unsupported file type" });
+        }
+    });
+});
