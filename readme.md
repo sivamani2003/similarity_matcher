@@ -175,6 +175,11 @@ DocScan is a web-based document analysis system that allows users to upload text
 4. Advanced text analysis
 5. Report generation
 6. Bulk upload functionality
+## Project Demo
+
+Watch my project demo video:
+
+[Project Demo Video](./project_demo.mp4)
 ## Screenshot
 ![User Login](./user_login.png)
 *User login and authentication interface*

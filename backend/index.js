@@ -84,7 +84,6 @@ database.exec("CREATE INDEX IF NOT EXISTS idx_filename ON documents (filename)")
 database.exec("CREATE INDEX IF NOT EXISTS idx_token ON tokens (token)");
 
 
-// Helper functions
 const hashPassword = async (password) => {
     return new Promise((resolve, reject) => {
         const salt = crypto.randomBytes(16).toString('hex');
@@ -118,7 +117,7 @@ const generateToken = (user) => {
         .digest('hex');
     const token = `${Buffer.from(payload).toString('base64')}.${timestamp}.${signature}`;
 
-    // Store token in database
+    
     const stmt = database.prepare(
         "INSERT INTO tokens (token, user_id, role, created_at, expires_at) VALUES (?, ?, ?, ?, ?)"
     );
@@ -152,7 +151,7 @@ const verifyToken = (req, res, next) => {
         const isExpired = new Date() > new Date(tokenData.expires_at);
 
         if (!isValid || isExpired) {
-            // Revoke token if expired
+
             database.prepare("DELETE FROM tokens WHERE token = ?").run(token);
             return res.status(401).json({ error: "Token invalid or expired" });
         }
@@ -317,37 +316,30 @@ app.get('/user/profile', verifyToken, async (req, res) => {
 });
 
 app.post('/scanUpload', verifyToken, async (req, res) => {
-    const userId = req.userId; // Get userId from the verified token
-    
-    // Create uploads directory if it doesn't exist
+    const userId = req.userId; 
     const uploadDir = 'uploads/';
     if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
     }
     
-    // Handle multipart form data manually
     if (!req.headers['content-type'] || !req.headers['content-type'].includes('multipart/form-data')) {
         return res.status(400).json({ error: 'Content-type must be multipart/form-data' });
     }
     
     try {
-        // Parse the multipart form data
+
         const chunks = [];
         let filename = '';
         let fileContent = Buffer.from([]);
         let boundary = req.headers['content-type'].split('boundary=')[1];
         
-        // Wait for all data chunks
         req.on('data', (chunk) => {
             chunks.push(chunk);
         });
-        
-        // Process the complete data when finished
         req.on('end', async () => {
             const buffer = Buffer.concat(chunks);
             let content = buffer.toString();
             
-            // Find the file part in the multipart data
             const filePartRegex = new RegExp(`--${boundary}[\\s\\S]+?name="file"[\\s\\S]+?filename="([^"]+)"[\\s\\S]+?\\r\\n\\r\\n([\\s\\S]+?)\\r\\n--${boundary}`, 'i');
             const match = content.match(filePartRegex);
             
@@ -357,8 +349,6 @@ app.post('/scanUpload', verifyToken, async (req, res) => {
             
             filename = match[1];
             
-            // Get the file content (binary-safe method)
-            // Get the file content (binary-safe method)
             const fileStartIndex = content.indexOf('\r\n\r\n', content.indexOf(`filename="${filename}"`)) + 4;
             const fileEndIndex = content.indexOf(`\r\n--${boundary}`, fileStartIndex);
             fileContent = Buffer.from(buffer.subarray(fileStartIndex, fileEndIndex));
@@ -368,19 +358,15 @@ app.post('/scanUpload', verifyToken, async (req, res) => {
                 return res.status(400).json({ error: "Only .txt files are supported" });
             }
             
-            // Generate unique filename to prevent overwriting
             const uniqueFileName = `${crypto.randomBytes(8).toString('hex')}_${filename}`;
             const filePath = path.join(uploadDir, uniqueFileName);
             
-            // Save the file
             fs.writeFileSync(filePath, fileContent);
             
-            // Database operations
             try {
                 const userStmt = database.prepare("SELECT username, credits FROM users WHERE id = ?");
                 const user = userStmt.all(userId);
                 if (!user.length || user[0].credits <= 0) {
-                    // Clean up file if user doesn't have enough credits
                     fs.unlinkSync(filePath);
                     return res.status(400).json({ error: "Insufficient credits" });
                 }
@@ -391,11 +377,9 @@ app.post('/scanUpload', verifyToken, async (req, res) => {
                 const updateStmt = database.prepare("UPDATE users SET credits = credits - 1 WHERE id = ?");
                 updateStmt.run(userId);
                 
-                // Store transaction in transactions table
                 const transStmt = database.prepare("INSERT INTO transactions (username, credits_used) VALUES (?, ?)");
                 transStmt.run(user[0].username, 1);
                 
-                // Store credit usage in credits_log
                 const logStmt = database.prepare(
                     "INSERT INTO credits_log (user_id, credits_used, timestamp) VALUES (?, ?, ?)"
                 );
@@ -411,7 +395,6 @@ app.post('/scanUpload', verifyToken, async (req, res) => {
                 
                 res.status(200).json({ message: "Document uploaded and scanned successfully" });
             } catch (err) {
-                // Clean up file if database operations fail
                 if (fs.existsSync(filePath)) {
                     fs.unlinkSync(filePath);
                 }
@@ -492,15 +475,12 @@ app.get('/admin/credit-reset-requests', verifyToken, requireRole('admin'), async
 app.post('/admin/approve-credits-reset', verifyToken, requireRole('admin'), async (req, res) => {
     const { userId } = req.body;
     try {
-        // Update user credits
         database.prepare("UPDATE users SET credits = 20 WHERE id = ?").run(userId);
         
-        // Log the credits reset in credits_log
         database.prepare(
             "INSERT INTO credits_log (user_id, credits_used, timestamp) VALUES (?, ?, ?)"
         ).run(userId, 20, new Date().toISOString());
         
-        // Delete the request notification
         database.prepare(
             "DELETE FROM notifications WHERE user_id = ? AND type = 'credit_reset_request'"
         ).run(userId);
@@ -721,10 +701,9 @@ app.delete('/admin/delete-user/:userId', verifyToken, requireRole('admin'), asyn
         res.status(500).json({ error: err.message });
     }
 });
-// Endpoint to get credit usage and approval statistics
 app.get('/admin/analytics', verifyToken, requireRole('admin'), async (req, res) => {
     try {
-        // Get credits usage stats, excluding approved resets (credits_used = 20)
+
         const creditStmt = database.prepare(`
             SELECT 
                 SUM(CASE WHEN credits_used != 20 THEN credits_used ELSE 0 END) as total_credits,
@@ -734,7 +713,6 @@ app.get('/admin/analytics', verifyToken, requireRole('admin'), async (req, res) 
         `);
         const creditStats = creditStmt.all()[0];
 
-        // Get number of approved credit reset requests from credits_log
         const approvalStmt = database.prepare(`
             SELECT COUNT(*) as approved_requests 
             FROM credits_log 
@@ -742,8 +720,6 @@ app.get('/admin/analytics', verifyToken, requireRole('admin'), async (req, res) 
         `);
         const approvalStats = approvalStmt.all()[0];
 
-        // Get peak hour for document uploads
-         // For a more recent view of peak hours
          const peakHourStmt = database.prepare(`
             SELECT 
                 strftime('%H', created_at) as hour,
@@ -754,7 +730,6 @@ app.get('/admin/analytics', verifyToken, requireRole('admin'), async (req, res) 
             LIMIT 1
         `);
         
-        // Execute the query and handle potential empty results
         let peakHourData;
         try {
             peakHourData = peakHourStmt.get();
@@ -762,18 +737,14 @@ app.get('/admin/analytics', verifyToken, requireRole('admin'), async (req, res) 
             console.error("Error retrieving peak hour data:", err);
             peakHourData = null;
         }
-        
-        // Default values if no data is found
         let peakUploadHour = "N/A";
         let uploadsInPeakHour = 0;
         
-        // Set values if data exists
         if (peakHourData) {
             peakUploadHour = peakHourData.hour;
             uploadsInPeakHour = peakHourData.upload_count;
         }
         
-        // Calculate average credits per user (assuming creditStats is defined elsewhere)
         let averageCreditsPerUser = 0;
         if (typeof creditStats !== 'undefined' && creditStats.total_users > 0) {
             averageCreditsPerUser = Math.round((creditStats.total_credits / creditStats.total_users) * 100) / 100;
@@ -846,12 +817,9 @@ app.delete('/delete-file/:docId', verifyToken,requireRole('admin'), async (req, 
             return res.status(404).json({ error: "Document not found" });
         }
 
-        // Allow both admin and file owner to delete
         if (req.userRole !== 'admin' && req.userId !== doc[0].user_id) {
             return res.status(403).json({ error: "Access denied" });
         }
-
-        // Delete document record from database first
         const deleteStmt = database.prepare("DELETE FROM documents WHERE id = ?");
         const result = deleteStmt.run(docId);
 
@@ -861,7 +829,6 @@ app.delete('/delete-file/:docId', verifyToken,requireRole('admin'), async (req, 
 
         const filePath = path.join(__dirname, doc[0].content);
         
-        // Check if file exists before trying to delete
         if (fs.existsSync(filePath)) {
             await fs.promises.unlink(filePath);
         }
@@ -872,7 +839,6 @@ app.delete('/delete-file/:docId', verifyToken,requireRole('admin'), async (req, 
     }
 });
 
-// Download file endpoint
 app.get('/download-file/:docId', verifyToken,requireRole('admin'), async (req, res) => {
     const { docId } = req.params;
     try {
