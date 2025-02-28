@@ -1,11 +1,8 @@
-/* Modern CSS Reset */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
-
-/* Variables */
 :root {
     --primary-color: #2563eb;
     --primary-hover: #1d4ed8;
@@ -26,7 +23,7 @@ body {
     min-height: 100vh;
 }
 
-.container {
+.sp1 {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -34,7 +31,7 @@ body {
     padding: 1.5rem;
 }
 
-.login-card {
+.sp2 {
     background: var(--card-background);
     border-radius: 1rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
@@ -43,14 +40,14 @@ body {
     overflow: hidden;
 }
 
-.admin-header {
+.sp {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
     color: white;
     padding: 2rem;
     text-align: center;
 }
 
-.admin-icon {
+.sp3 {
     background: rgba(255, 255, 255, 0.1);
     width: 64px;
     height: 64px;
@@ -61,17 +58,17 @@ body {
     margin: 0 auto 1rem;
 }
 
-.admin-header h1 {
+.sp h1 {
     font-size: 1.5rem;
     font-weight: 600;
     margin: 0;
 }
 
-.login-form {
+.sp4 {
     padding: 2rem;
 }
 
-.login-form h2 {
+.sp4 h2 {
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
@@ -83,18 +80,18 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.form-group {
+.sp5 {
     margin-bottom: 1.5rem;
 }
 
-.form-group label {
+.sp5 label {
     display: block;
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
 }
 
-.input-wrapper {
+.sp6 {
     position: relative;
 }
 
@@ -123,7 +120,7 @@ input[type="password"]:focus {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.form-options {
+.sp7 {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -138,17 +135,17 @@ input[type="password"]:focus {
     color: var(--text-light);
 }
 
-.forgot-password {
+.sp8 {
     font-size: 0.875rem;
     color: var(--primary-color);
     text-decoration: none;
 }
 
-.forgot-password:hover {
+.sp8:hover {
     text-decoration: underline;
 }
 
-.submit-btn {
+.sp10 {
     width: 100%;
     padding: 0.875rem;
     background: var(--primary-color);
@@ -161,11 +158,11 @@ input[type="password"]:focus {
     transition: background-color 0.15s ease;
 }
 
-.submit-btn:hover {
+.sp10:hover {
     background: var(--primary-hover);
 }
 
-.security-notice {
+.sp9 {
     margin-top: 1.5rem;
     padding: 1rem;
     background: #f8fafc;
@@ -177,28 +174,28 @@ input[type="password"]:focus {
     color: var(--text-light);
 }
 
-.security-notice svg {
+.sp9 svg {
     color: var(--primary-color);
 }
 
 @media (max-width: 480px) {
-    .container {
+    .sp1 {
         padding: 1rem;
     }
     
-    .login-card {
+    .sp2 {
         border-radius: 0.75rem;
     }
     
-    .admin-header {
+    .sp {
         padding: 1.5rem;
     }
     
-    .login-form {
+    .sp4 {
         padding: 1.5rem;
     }
     
-    .form-options {
+    .sp7 {
         flex-direction: column;
         gap: 1rem;
         align-items: flex-start;

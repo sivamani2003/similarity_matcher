@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document Analysis Dashboard</title>
     <link rel="stylesheet" href="/src/styles1.css">
-</head>
+</head> 
 <body>
-    <div class="dashboard-container">
+    <div class="sp1">
         <aside class="sidebar">
-            <div class="sidebar-header">
+            <div class="sp2">
                 <img src="https://api.iconify.design/lucide:scan.svg" alt="Logo" class="logo">
                 <h1>DocScan</h1>
             </div>
@@ -18,7 +18,7 @@
                     <img src="https://api.iconify.design/lucide:layout-dashboard.svg" alt="Dashboard">
                     Dashboard
                 </a>
-                <button class="logout-btn">
+                <button class="sp4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
                     Logout
                 </button>
@@ -39,28 +39,28 @@
                 </div>
             </header>
 
-            <div class="dashboard-grid">
-                <div class="card stats-card">
+            <div class="sp3">
+                <div class="card sp5">
                     <h3>Documents Scanned</h3>
-                    <div class="stat-value" id="documentCount">Loading...</div>
+                    <div class="sp6" id="documentCount">Loading...</div>
                     <div class="stat-chart"></div>
                 </div>
-                <div class="card stats-card">
+                <div class="card sp5">
                     <h3>Available Credits</h3>
-                    <div class="stat-value" id="creditsCount">Loading...</div>
+                    <div class="sp6" id="creditsCount">Loading...</div>
                     <div class="stat-chart"></div>
                 </div>
-                <div class="card upload-card">
+                <div class="card sp11">
                     <h3>Upload Document</h3>
-                    <div class="upload-area" id="dropZone">
+                    <div class="sp7" id="dropZone">
                         <img src="https://api.iconify.design/lucide:upload-cloud.svg" alt="Upload" class="upload-icon">
                         <p>Drag & drop files here or</p>
-                        <label for="fileInput" class="upload-button">Browse Files</label>
+                        <label for="fileInput" class="sp8">Browse Files</label>
                         <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" multiple hidden>
                     </div>
-                    <div class="upload-list" id="uploadList"></div>
+                    <div class="sp9" id="uploadList"></div>
                 </div>
-                <div class="card recent-scans">
+                <div class="card sp10">
                     <div class="card-header">
                         <h3>Recent Scans</h3>
                         <button class="view-all" id="viewAllBtn">View All</button>
@@ -68,7 +68,7 @@
                     </div>
                     <div class="scan-list" id="recentScans"></div>
                 </div>
-                <div class="card upload-card">
+                <div class="card sp11">
                     <h3>Request Credits Reset</h3>
                     <div class="credits-area">
                         <img src="https://api.iconify.design/lucide:refresh-cw.svg" alt="Reset" class="credits-icon">
@@ -82,7 +82,6 @@
     </div>
 
     <script>
-        // Custom decodeToken function for the browser
         function decodeToken(token, validate = false) {
             if (!token) throw new Error("No token provided");
             const [encodedPayload, timestamp, signature] = token.split('.');
@@ -103,8 +102,6 @@
                 throw new Error(`Failed to decode token: ${err.message}`);
             }
         }
-
-        // Centralized fetch wrapper with token authentication
         async function authenticatedFetch(url, options = {}) {
             const token = localStorage.getItem('token');
             if (!token) throw new Error("No token found in localStorage");
@@ -118,13 +115,9 @@
             if (!response.ok) throw new Error(`HTTP error ${response.status}: ${await response.text()}`);
             return response.json();
         }
-
-        // Main initialization
         document.addEventListener('DOMContentLoaded', () => {
             let token = localStorage.getItem('token');
             let userId, username;
-
-            // Decode token and set initial user info
             try {
                 const decoded = decodeToken(token);
                 userId = decoded.id;
@@ -134,20 +127,21 @@
                 console.error('Token decode error:', err.message);
                 document.getElementById('usernameDisplay').textContent = 'Guest';
                 document.getElementById('recentScans').innerHTML = '<p>Please log in to view dashboard.</p>';
-                return; // Exit early if token is invalid
+                return; 
             }
 
-            // Fetch document count
+            //Api call to get the document count
             authenticatedFetch(`http://localhost:3001/user/documents?userId=${userId}`)
                 .then(data => {
-                    document.getElementById('documentCount').textContent = data.documents?.length || 0;
+                    const count = Array.isArray(data.documents) ? data.documents.length : 0;
+                    document.getElementById('documentCount').textContent = count;
                 })
                 .catch(err => {
                     console.error('Error fetching document count:', err);
-                    document.getElementById('documentCount').textContent = 'Error';
+                    document.getElementById('documentCount').textContent = '0';
                 });
 
-            // Fetch credits
+            // Api call for getting user credits
             authenticatedFetch('http://localhost:3001/user/credits')
                 .then(data => {
                     document.getElementById('creditsCount').textContent = data.credits ?? 'Error';
@@ -157,7 +151,7 @@
                     document.getElementById('creditsCount').textContent = 'Error';
                 });
 
-            // Recent scans
+            // APi call for getting the documents of user
             const recentScansContainer = document.getElementById('recentScans');
             const viewAllBtn = document.getElementById('viewAllBtn');
             const showLessBtn = document.getElementById('showLessBtn');
@@ -179,7 +173,7 @@
                                 <div class="scan-details">
                                     <h4>${doc.filename}</h4>
                                     <p id="similarity-${doc.id}">Similarity data not available</p>
-                                    <button class="check-now" data-doc-id="${doc.id}">Check Now</button>
+                                    <button class="sp13" data-doc-id="${doc.id}">Check Now</button>
                                 </div>
                             `;
                             recentScansContainer.appendChild(scanItem);
@@ -188,11 +182,59 @@
 
                     displayDocuments(documents.slice(0, 3));
 
+                    let searchTimeout;
                     searchInput.addEventListener('input', (e) => {
-                        const query = e.target.value.toLowerCase();
-                        const filteredDocs = documents.filter(doc => doc.filename.toLowerCase().includes(query));
-                        displayDocuments(filteredDocs);
+                        clearTimeout(searchTimeout);
+                        const query = e.target.value.trim();
+                        if (!query) {
+                            displayDocuments(documents);
+                            return;
+                        }
+                        recentScansContainer.innerHTML = '<div class="loading">Searching...</div>';
+                        searchTimeout = setTimeout(() => {
+                            authenticatedFetch(`http://localhost:3001/search-documents?filename=${encodeURIComponent(query)}`)
+                                .then(data => {
+                                    const documents = data.documents || [];
+                                    displayDocuments(documents);
+                                    if (documents.length > 3) {
+                                        viewAllBtn.style.display = 'block';
+                                        showLessBtn.style.display = 'none';
+                                    } else {
+                                        viewAllBtn.style.display = 'none';
+                                        showLessBtn.style.display = 'none';
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error('Search error:', err);
+                                    recentScansContainer.innerHTML = '<div class="error">Error searching documents</div>';
+                                });
+                        }, 300);
                     });
+
+                    function displayDocuments(docs) {
+                        recentScansContainer.innerHTML = '';
+                        if (docs.length === 0) {
+                            recentScansContainer.innerHTML = '<div class="no-results">No documents found</div>';
+                            return;
+                        }
+
+                        docs.forEach(doc => {
+                            const scanItem = document.createElement('div');
+                            scanItem.classList.add('scan-item');
+                            scanItem.innerHTML = `
+                                <div class="scan-icon">
+                                    <img src="https://api.iconify.design/lucide:file-text.svg" alt="Document">
+                                </div>
+                                <div class="scan-details">
+                                    <h4>${doc.filename}</h4>
+                                    
+                                    <p id="similarity-${doc.id}">Similarity data not available</p>
+                                    <button class="sp13" data-doc-id="${doc.id}">Check Now</button>
+                                </div>
+                            `;
+                            recentScansContainer.appendChild(scanItem);
+                        });
+                    }
 
                     viewAllBtn.addEventListener('click', () => {
                         displayDocuments(documents);
@@ -207,7 +249,7 @@
                     });
 
                     recentScansContainer.addEventListener('click', (e) => {
-                        if (e.target.classList.contains('check-now')) {
+                        if (e.target.classList.contains('sp13')) {
                             const docId = e.target.getAttribute('data-doc-id');
                             authenticatedFetch(`http://localhost:3001/matches/${docId}`)
                                 .then(data => {
@@ -228,10 +270,10 @@
                 })
                 .catch(err => {
                     console.error('Error fetching recent scans:', err);
-                    recentScansContainer.innerHTML = '<p>Error loading recent scans.</p>';
+                    recentScansContainer.innerHTML = '<p>No Files uploaded.</p>';
                 });
 
-            // File upload
+            // Api call for uploading the file 
             const fileInput = document.getElementById('fileInput');
             const dropZone = document.getElementById('dropZone');
             const uploadList = document.getElementById('uploadList');
@@ -244,36 +286,54 @@
             });
 
             function uploadFiles(files) {
+                const file = files[0]; 
+                if (!file) return;
+                if (!file.name.toLowerCase().endsWith('.txt')) {
+                    alert('Only .txt files are supported');
+                    return;
+                }
+
                 const formData = new FormData();
-                Array.from(files).forEach(file => formData.append('file', file));
+                formData.append('file', file);
                 formData.append('userId', userId);
 
                 fetch('http://localhost:3001/scanUpload', {
                     method: 'POST',
                     body: formData,
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 })
-                .then(response => {
-                    if (!response.ok) throw new Error('Upload failed');
-                    return response.json();
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Upload failed');
+                    return data;
                 })
                 .then(data => {
-                    if (data.message) {
-                        const listItem = document.createElement('div');
-                        listItem.classList.add('upload-item');
-                        listItem.innerHTML = `<p>${files[0].name} uploaded successfully!</p>`;
-                        uploadList.appendChild(listItem);
-                    } else if (data.error) {
-                        alert(data.error);
-                    }
+                    const listItem = document.createElement('div');
+                    listItem.classList.add('sp14');
+                    listItem.innerHTML = `<p>${file.name} uploaded successfully!</p>`;
+                    uploadList.appendChild(listItem);
+                    authenticatedFetch(`http://localhost:3001/user/documents?userId=${userId}`)
+                        .then(data => {
+                            document.getElementById('documentCount').textContent = data.documents?.length || 0;
+                        });
+                    
+                    authenticatedFetch('http://localhost:3001/user/credits')
+                        .then(data => {
+                            document.getElementById('creditsCount').textContent = data.credits ?? 'Error';
+                        });
+                    authenticatedFetch(`http://localhost:3001/user/documents?userId=${userId}`)
+                        .then(data => {
+                            const documents = data.documents || [];
+                            displayDocuments(documents.slice(0, 3));
+                        });
                 })
                 .catch(err => {
                     console.error('Upload error:', err);
-                    alert('Error uploading file.');
+                    alert(err.message || 'Error uploading file.');
                 });
             }
-
-            // Credits reset request
             const requestBtn = document.getElementById('requestCreditsBtn');
             const statusMessage = document.getElementById('statusMessage');
 
@@ -299,9 +359,7 @@
                     statusMessage.className = 'status-message error';
                 });
             });
-
-            // Logout
-            document.querySelector('.logout-btn').addEventListener('click', () => {
+            document.querySelector('.sp4').addEventListener('click', () => {
                 localStorage.removeItem('token');
                 window.location.replace('index.html');
             });
