@@ -3,13 +3,6 @@
 ## Overview
 DocScan is a web-based document analysis system that allows users to upload text documents, scan them for similarities, and manage document analysis results. The system includes user authentication, credit management, and admin features. Used only Express and Cors in backend no external libaries used in backend.In user dash board user have serach feature also
 
-## Project Demo
-
-<video width="100%" controls>
-  <source src="./project_demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-
 ## Technology Stack
 
 ### Backend (Node.js)
@@ -182,7 +175,11 @@ DocScan is a web-based document analysis system that allows users to upload text
 4. Advanced text analysis
 5. Report generation
 6. Bulk upload functionality
+## Project Demo
 
+Watch my project demo video:
+
+[Project Demo Video](./project_demo.mp4)
 ## Screenshot
 ![User Login](./user_login.png)
 *User login and authentication interface*
