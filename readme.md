@@ -179,7 +179,10 @@ DocScan is a web-based document analysis system that allows users to upload text
 
 Watch my project demo video:
 
-[Project Demo Video](./project_demo.mp4)
+<video width="100%" controls>
+   <source src="./project_demo.mp4" type="video/mp4">
+   Your browser does not support the video tag.
+</video>
 ## Screenshot
 ![User Login](./user_login.png)
 *User login and authentication interface*
