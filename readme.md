@@ -56,7 +56,7 @@ DocScan is a web-based document analysis system that allows users to upload text
 
 2. **Installation**
    ```bash
-   git clone [repository-url]
+   git clone [https://github.com/sivamani2003/similarity_matcher.git]
    cd backend
    npm install
    ```
